@@ -123,12 +123,7 @@ export default {
         emitAddToCart(lessonId) {
         this.$emit('addToCart', lessonId);
     },
-        removeFromCart(_id) {
-            let index = this.cart.indexOf(_id);
-            if (index !== -1) {
-                this.cart.splice(index, 1);
-            }
-        },
+       
     },
 }
 </script>

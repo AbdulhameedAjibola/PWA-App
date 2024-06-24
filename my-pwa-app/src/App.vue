@@ -10,7 +10,7 @@
           <li>
             <button class="show-checkout" @click="toggleComponent" v-if="cartItemCount >= 1">View Cart ({{ cartItemCount }})</button>
             <button class="show-checkout" v-else-if="isCartEmpty()">View Cart ({{ cartItemCount }})</button>
-             <button class="show-checkout" @click="toggleComponent" v-else disabled>View Cart ({{ cartItemCount }})</button>
+             <button class="show-checkout"  v-else disabled>View Cart ({{ cartItemCount }})</button>
           </li>
         </ul>
         <div class="toggle_btn" @click="toggleDropdown">
@@ -23,20 +23,24 @@
         <div class="cart-buttons">
           <button class="show-checkout" @click="toggleComponent" v-if="cartItemCount >= 1">View Cart ({{ cartItemCount }})</button>
             <button class="show-checkout" v-else-if="isCartEmpty()">View Cart ({{ cartItemCount }})</button>
-             <button class="show-checkout" @click="toggleComponent" v-else disabled>View Cart ({{ cartItemCount }})</button>
+             <!-- <button class="show-checkout"  v-else disabled>View Cart ({{ cartItemCount }})</button> -->
         </div>
       </div>
     </header>
     <!-- dynamic component rendering -->
     
-    <component 
-  :is="activeTab" 
-  :sortedLessons="sortedLessons" 
-  v-on:addToCart="addToCart" 
-  v-if="activeTab === 'LessonComponent'"
-></component>
+        <component 
+      :is="activeTab" 
+      :sortedLessons="sortedLessons" 
+      v-on:addToCart="addToCart" 
+      v-if="activeTab === 'LessonComponent'"
+    ></component>
 
-    <component :is="activeTab" v-else :cart="cart" :lessons="lessons"></component>
+    <component :is="activeTab" 
+    v-else :cart="cart"
+     :lessons="lessons"
+      v-on:removeFromCart="removeFromCart">
+    </component>
     
   </div>
 </template>
@@ -71,6 +75,19 @@ export default {
     toggleComponent() {
       this.activeTab = this.activeTab === 'LessonComponent' ? 'CheckoutComponent' : 'LessonComponent';
     },
+    removeFromCart(_id) {
+    // Find the index of the item with the given _id
+    let index = this.cart.indexOf(_id);
+    // If the item is found, remove it from the cart
+    if (index !== -1) {
+        this.cart.splice(index, 1);
+    }
+    // Check if the active tab is 'CheckoutComponent' and the cart is empty
+    if (this.activeTab === 'CheckoutComponent' && this.cart.length === 0) {
+        this.toggleComponent();
+    }
+},
+
     async getLessons() {
       try {
         const response = await fetch(`${this.serverUrl}/lessons`);
@@ -103,9 +120,7 @@ export default {
       }
     },
     isCartEmpty() {
-            if (this.showCheckout && this.cart.length <= 0) {
-                this.showLessons = true;
-            }
+            
         }, 
     toggleDropdown() {
       const toggleBtnIcon = document.querySelector('.toggle_btn i');

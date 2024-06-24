@@ -18,7 +18,7 @@
                         </div>
                     </div>
                     <div class="delete-from-cart">
-                        <button class="remove-from-cart" @click="removeFromCart(lessonID)">Remove from Cart</button>
+                        <button class="remove-from-cart" @click="emitremoveFromCart(lesson._id)">Remove from Cart</button>
                     </div>
                 </div>
             </div>
@@ -67,6 +67,9 @@ export default {
         },
         cartCount(lessonId) {
         return this.$parent.cart.filter(_id => _id === lessonId).length;
+    },
+    emitremoveFromCart(lessonID){
+        this.$emit('removeFromCart', lessonID)
     },
         async checkOut() {
             try {
