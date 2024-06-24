@@ -1,5 +1,6 @@
 <template>
     <div class="show-lesson">
+        <input type="text" placeholder="Search Lessons" class="search-bar" v-model="searchTerm">
         <section class="sort-section">
             <h2>Apply Filters</h2>
             <div class="sort">
@@ -51,13 +52,14 @@
 </template>
 
 <script>
+import _ from 'lodash';
 export default {
     props: ['sortedLessons'],
     data() {
         return {
             sortBy: '',
             serverUrl: 'https://afterschool-cw2.onrender.com',
-            
+            searchTerm: '',
             sortOrder: 'ascending',
             localSortedLessons: [...this.sortedLessons],  // Create a local copy of sortedLessons
         };
@@ -75,9 +77,27 @@ export default {
         },
         sortOrder() {
             this.sortLessons();
-        }
+        },
+        searchTerm: 'debouncedSearchLessons',
     },
     methods: {
+        async searchLessons() {
+      try {
+       
+        const queries = new URLSearchParams();
+        queries.append('subject', this.searchTerm);
+        queries.append('location', this.searchTerm);
+        const response = await fetch(`${this.serverUrl}/lessons/search?${queries.toString()}`);
+        const lessons = await response.json();
+
+        this.localSortedLessons = lessons;
+      } catch (error) {
+        console.error('Error searching lessons:', error);
+      }
+    },
+    debouncedSearchLessons: _.debounce(function () {
+            this.searchLessons();
+          }, 200), //
         getImageUrl(imagePath) {
             return `${this.serverUrl}/${imagePath}`;
         },
@@ -138,6 +158,16 @@ export default {
 .image-holder{
     z-index: -1;
   }
+  .search-bar {
+  width: 300px;
+  padding: 6px;
+  margin: 10px;
+  font-size: 16px;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px black solid;
+  outline: none;
+}
 .lesson {
     
     margin: 5px;
@@ -157,8 +187,6 @@ export default {
     width: 100%;
     object-fit: cover;
     border-radius: 8px;
-    
-    
     transition: filter 1s ease-in;
 }
 

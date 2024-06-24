@@ -16,10 +16,9 @@
                             <p> DHS {{ lesson.price }}</p>
                             <span>Available Stock: {{ lesson.availability - cartCount(lesson._id) }}</span>
                         </div>
-                    </div>
-                    <div class="delete-from-cart">
                         <button class="remove-from-cart" @click="emitremoveFromCart(lesson._id)">Remove from Cart</button>
                     </div>
+                    
                 </div>
             </div>
 
@@ -50,7 +49,8 @@ export default {
         lessons: {
             type: Array,
             required: true
-        }
+        },
+        toggleComponent: Function
     },
     data() {
         return {
@@ -66,7 +66,7 @@ export default {
             return `${this.serverUrl}/${imagePath}`;
         },
         cartCount(lessonId) {
-        return this.$parent.cart.filter(_id => _id === lessonId).length;
+        return this.cart.filter(_id => _id === lessonId).length;
     },
     emitremoveFromCart(lessonID){
         this.$emit('removeFromCart', lessonID)
@@ -90,8 +90,8 @@ export default {
                 if (response.ok) {
                     alert(data.msg);
                     this.updateLessons();
-                    
-                    
+                    this.toggleComponent();
+                    this.$emit('clearCart');
                     this.customerName = '';
                     this.customerNumber = '';
                 } else {
@@ -159,20 +159,30 @@ export default {
 }
 
 .cart-item {
-    display: flex;
+    
     border: 3px solid black;
     border-radius: 8px;
-    justify-content: space-between;
+    
+    
     padding: 15px;
-    flex-direction: column;
+    
     gap: 15px;
 }
 
 .item-data {
     display: flex;
+   gap: 10px;
+   align-items: center;
+    justify-content: space-around;
+}
+@media (max-width: 884px) {
+  .cart-item
+{
     flex-direction: column;
-    gap: 20px;
-    justify-content: space-between;
+}
+.item-data{
+    flex-direction: column;
+}
 }
 
 .cart-lesson-image {
@@ -194,6 +204,7 @@ export default {
     background-color: red;
     padding: 10px;
     font-size: 18px;
+    height: 50px;
     font-weight: 700;
     color: wheat;
     border: 1px solid black;
